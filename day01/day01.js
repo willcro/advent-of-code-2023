@@ -45,3 +45,40 @@ const out2 = lines.map(line => map[startPattern.exec(line)[1]] * 10 + map[endPat
   .reduce((a, b) => a + b, 0)
   
 console.log(out2)
+
+// part 2 with no regex
+
+function getFirstDigit(line) {
+  let min = 1;
+  let max = 5;
+  
+  for (let i = 0; i<line.length; i++) {
+    for (let j=i+min; j<=i+max; j++) {
+      var sub = line.substring(i, j);
+      // console.log(sub)
+      if (map[sub] != undefined) {
+        return map[sub];
+      }
+    }
+  }
+}
+
+function getLastDigit(line) {
+  let min = 1;
+  let max = 5;
+
+  for (let i = line.length - 1; i >= 0; i--) {
+    for (let j = i + min; j <= i + max && j <= line.length; j++) {
+      var sub = line.substring(i, j);
+      // console.log(sub)
+      if (map[sub] != undefined) {
+        return map[sub];
+      }
+    }
+  }
+}
+
+const out3 = lines.map(line => getFirstDigit(line) * 10 + getLastDigit(line))
+  .reduce((a, b) => a + b, 0)
+
+console.log(out3)
