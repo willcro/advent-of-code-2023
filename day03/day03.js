@@ -3,12 +3,8 @@
 const text = await Deno.readTextFile("./input.txt");
 const lines = text.split("\n");
 
-function range(size, startAt = 0) {
+function range(size, startAt) {
   return [...Array(size).keys()].map(i => i + startAt);
-}
-
-function lineToNumbersOld(line) {
-  return line.split(".").filter(it => it.length > 0).map(it => it * 1);
 }
 
 function lineToNumbers(line, y) {
