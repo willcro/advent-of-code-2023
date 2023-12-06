@@ -1,10 +1,10 @@
 // part 1
 
+const text = await Deno.readTextFile("./input.txt");
+
 function range(size, startAt) {
   return [...Array(size).keys()].map(i => i + startAt);
 }
-
-const text = await Deno.readTextFile("./input.txt");
 
 function parseInput(text) {
   let lines = text.split("\n");
@@ -18,12 +18,9 @@ function parseInput(text) {
   });
 }
 
-function distance(buttonTime, totalTime) {
-  return buttonTime * (totalTime - buttonTime);
-}
-
 function waysToWin(race) {
   let quads = quadraticFormula(-1, race.time, -race.distance);
+  // extra logic would need to be added if these are integers
   let first = Math.ceil(quads[0]);
   let second = Math.floor(quads[1]);
   return second - first + 1;
