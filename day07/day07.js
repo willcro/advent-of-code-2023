@@ -35,7 +35,6 @@ function handNumberValue(hand) {
 function handType(hand) {
   for (let i = 0; i < types.length; i++) {
     if (types[i].test(hand)) {
-      // console.log(hand, i)
       return types.length - i;
     }
   }
@@ -59,26 +58,18 @@ console.log(lines.map(parseLine).sort((a, b) => compareHands(a.hand, b.hand)).ma
 
 // I managed to skip reading the section that changes the value of the Joker like 5 times
 cardMap = {
-  'J': '2',
-  '2': '3',
-  '3': '4',
-  '4': '5',
-  '5': '6',
-  '6': '7',
-  '7': '8',
-  '8': '9',
-  '9': 'a',
-  'T': 'b',
-  'Q': 'c',
-  'K': 'd',
-  'A': 'e'
+  'J': '2', '2': '3', '3': '4', '4': '5', '5': '6', '6': '7',
+  '7': '8', '8': '9', '9': 'a', 'T': 'b', 'Q': 'c', 'K': 'd', 'A': 'e'
 }
 
-const cards = ['A', 'K', 'Q', 'T', '9', '8', '7', '6', '5', '4', '3', '2']
-
 function maxValue(hand) {
+  let cards = Array.from(new Set(hand.split(""))).filter(it => it != "J")
   return cards.map(c => handType(hand.replaceAll("J", c)) * 1000000000 + handNumberValue(hand)).reduce((a,b) => Math.max(a, b), 0);
 }
 
-console.log(lines.map(parseLine).sort((a, b) => maxValue(a.hand) - maxValue(b.hand)).map((it, i) => (i + 1) * it.bid).reduce((a, b) => a + b));
-
+console.log(lines.map(parseLine).map(h => {
+  h.value = maxValue(h.hand);
+  return h;
+}).sort((a, b) => a.value - b.value)
+  .map((it, i) => (i + 1) * it.bid)
+  .reduce((a, b) => a + b));
