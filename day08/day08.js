@@ -79,6 +79,9 @@ function gcd(a, b) {
   return gcd(b, a % b);
 }
 
+// another note: the GCD of the loops is 263, which is exactly the same as the length of the instructions
+// this also simplifies the logic a lot. They could have made this problem a lot more difficult than they did
+
 function lcm(a, b) {
   return (a * b) / gcd(a,b);
 }
