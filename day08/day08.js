@@ -66,7 +66,7 @@ function analyzeGhost(start) {
     loop: count - first
   };
 }
-// Another important note: All the loops are exactly the same length as thier
+// Another important note: All the loops are exactly the same length as their
 // initial offset. If this wasn't true, I think we would have to use the Chinese
 // remainder theorem to solve, but since it is, we can just use LCM
 // console.log(Object.keys(paths).filter(it => it.endsWith("A")).map(analyzeGhost));
