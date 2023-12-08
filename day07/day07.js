@@ -32,6 +32,10 @@ function handNumberValue(hand) {
   return Number.parseInt(hand.split('').map(d => cardMap[d] ?? d).join(""), 15);
 }
 
+function handTypeNoRegex(hand) {
+  return Object.values(Object.groupBy(hand.split(""), it => it)).map(it => it.length).sort((a, b) => b - a).slice(0, 2).join("").padEnd(2, "0") * 1;
+}
+
 function handType(hand) {
   for (let i = 0; i < types.length; i++) {
     if (types[i].test(hand)) {
@@ -63,8 +67,8 @@ cardMap = {
 }
 
 function maxValue(hand) {
-  let cards = Array.from(new Set(hand.split(""))).filter(it => it != "J")
-  return cards.map(c => handType(hand.replaceAll("J", c)) * 1000000000 + handNumberValue(hand)).reduce((a,b) => Math.max(a, b), 0);
+  let cards = Array.from(new Set(hand.split("")))
+  return cards.map(c => handTypeNoRegex(hand.replaceAll("J", c)) * 1000000000 + handNumberValue(hand)).reduce((a, b) => Math.max(a, b), 0);
 }
 
 console.log(lines.map(parseLine).map(h => {
@@ -73,3 +77,4 @@ console.log(lines.map(parseLine).map(h => {
 }).sort((a, b) => a.value - b.value)
   .map((it, i) => (i + 1) * it.bid)
   .reduce((a, b) => a + b));
+
