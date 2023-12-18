@@ -3,6 +3,7 @@
 const text = await Deno.readTextFile("./input.txt");
 const map = text.split("\n").map(row => row.split("").map(it => it * 1));
 
+// I thought it would be fun to try to implement a min heap
 class Heap {
 
   constructor(comparitor) {
@@ -13,54 +14,82 @@ class Heap {
   push(it) {
     let index = this.array.push(it) - 1;
     let parentIndex = Math.ceil(index / 2) - 1
-    let parent = array[parentIndex];
+    let parent = this.array[parentIndex];
     while(parent != undefined && this.comparitor(it, parent) > 0) {
       // swap
-      array[parentIndex] = it;
-      array[index] = parent;
+      this.array[parentIndex] = it;
+      this.array[index] = parent;
       
       index = parentIndex;
       parentIndex = Math.ceil(index / 2) - 1;
-      parent = array[parentIndex];
+      parent = this.array[parentIndex];
     }
   }
   
   pop() {
-    const last = array.pop();
-    const first = array[0];
-    array[0] = last;
+    if (this.array.length == 1) {
+      return this.array.pop();
+    }
+    
+    if (this.array.length == 0) {
+      return undefined;
+    }
+    
+    const last = this.array.pop();
+    const first = this.array[0];
+    this.array[0] = last;
     
     let index = 0;
     let child1Index = 2 * index + 1;
     let child2Index = 2 * index + 2;
-    let child1 = array[child1Index];
-    let child2 = array[child2Index];
-    while (chil != undefined && this.comparitor(child1, last) > 0) {
-      // swap
-      array[parentIndex] = it;
-      array[index] = parent;
-
-      index = parentIndex;
-      parentIndex = Math.ceil(index / 2) - 1;
-      parent = array[parentIndex];
+    let child1 = this.array[child1Index];
+    let child2 = this.array[child2Index];
+    while (true) {      
+      if (child1 != undefined && this.comparitor(child1, last) > 0 && (child2 == undefined || this.comparitor(child1, child2) > 0)) {
+        this.array[child1Index] = last;
+        this.array[index] = child1;
+        index = child1Index;
+      } else if (child2 != undefined && this.comparitor(child2, last) > 0) {
+        this.array[child2Index] = last;
+        this.array[index] = child2;
+        index = child2Index;
+      } else {
+        return first;
+      }
+      
+      child1Index = 2 * index + 1;
+      child2Index = 2 * index + 2;
+      child1 = this.array[child1Index];
+      child2 = this.array[child2Index];
     }
-    
   }
-
-
+  
+  length() {
+    return this.array.length;
+  }
+  
+  sort() {
+    let out = [];
+    while(this.array.length > 0) {
+      out.push(this.pop());
+    }
+    return out;
+  }
 }
 
+
+
 function djikstra(map, min, max) {
-  let vertices = {"0,0,right,0": {x: 0, y: 0, direction: "right", count: 0, cost: 0}};
+  let verticesHeap = new Heap((a,b) => b.cost - a.cost);
+  verticesHeap.push({ x: 0, y: 0, direction: "right", count: 0, cost: 0 });
+  
   let burned = new Set();
-  while (Object.values(vertices).length > 0) {
-    let vert = Object.values(vertices).reduce((a, b) => (a.cost + heuristic(a, map)) < (b.cost + heuristic(b, map)) ? a : b);
-    delete vertices[`${vert.x},${vert.y},${vert.direction},${vert.count}`];
-    // console.log(vert);
+  while (verticesHeap.length() > 0) {
+    let vert = verticesHeap.pop();
+    if (burned.has(`${vert.x},${vert.y},${vert.direction},${vert.count}`)) {
+      continue;
+    }
     
-    // if (burned.size % 1000 == 0) {
-    //   console.log("burned: " + burned.size);
-    // }
     burned.add(`${vert.x},${vert.y},${vert.direction},${vert.count}`);
     if (vert.x == map[0].length - 1 && vert.y == map.length - 1) {
       return vert.cost;
@@ -85,10 +114,7 @@ function djikstra(map, min, max) {
         return v;
       })
       .forEach(v => {
-        let id = `${v.x},${v.y},${v.direction},${v.count}`;
-        if (vertices[id] == undefined || vertices[id].cost > v.cost) {
-          vertices[id] = v;
-        }
+        verticesHeap.push(v);
       });
   }
   
