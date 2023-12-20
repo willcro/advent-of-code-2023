@@ -8,9 +8,11 @@ class BroadcasterModule {
   constructor(id, inputs, outputs) {
     this.id = id;
     this.outputs = outputs;
+    this.lastLevel = "NO";
   }
 
   pulse(input) {
+    this.lastLevel = input.level;
     return this.outputs.map(o => {
       return {
         source: this.id,
@@ -26,6 +28,7 @@ class FlipFlopModule {
     this.id = id;
     this.outputs = outputs;
     this.state = false;
+    this.lastLevel = "NO";
   }
 
   pulse(input) {
@@ -35,6 +38,8 @@ class FlipFlopModule {
     
     let outLevel = this.state ? "LOW" : "HIGH";
     this.state = !this.state;
+    
+    this.lastLevel = outLevel;
     
     return this.outputs.map(o => {
       return {
@@ -52,6 +57,7 @@ class ConjunctionModule {
     this.outputs = outputs;
     this.latest = {};
     inputs.forEach(i => this.latest[i] = "LOW");
+    this.lastLevel = "NO";
   }
   
   outLevel() {
@@ -61,6 +67,8 @@ class ConjunctionModule {
 
   pulse(input) {
     this.latest[input.source] = input.level;
+    
+    this.lastLevel = this.outLevel();
 
     return this.outputs.map(o => {
       return {
@@ -69,21 +77,6 @@ class ConjunctionModule {
         level: this.outLevel()
       }
     })
-  }
-}
-
-class SignalModule {
-  constructor(id, inputs, outputs) {
-    this.id = id;
-  }
-
-
-
-  pulse(input) {
-    if (input.level == "LOW") {
-      throw `${id} got LOW`;
-    }
-    return [];
   }
 }
 
@@ -105,7 +98,6 @@ function parseInput(str) {
       inputs[out].push(line.id);
     });
   });
-  
   
   let modules = {};
   
@@ -129,7 +121,7 @@ function parseLine(line) {
   };
 }
 
-function pushButton(modules, input) {
+function pushButton(modules, input, n, watched) {
   let pulses = input;
   let allPulses = input.map(it => it);
   while (pulses.length > 0) {
@@ -137,39 +129,56 @@ function pushButton(modules, input) {
     if (modules[pulse.destination] == undefined) {
       continue;
     }
+    
+    let before = modules[pulse.destination].lastLevel;
     let newPulses = modules[pulse.destination].pulse(pulse);
+    let after = modules[pulse.destination].lastLevel;
+
+    if (before != after && pulse.destination == watched) {
+      console.log(`${pulse.destination} changed from ${before} to ${after} on iteration ${n}`);
+    }
+    
     newPulses.forEach(p => pulses.push(p));
     newPulses.forEach(p => allPulses.push(p));
   }
-  // console.log(allPulses);
   return allPulses;
 }
 
-function part1(n) {
+function part1(n, watched) {
   let modules = parseInput(text);
   let highs = 0;
   let lows = 0;
   for (let i = 0; i < n; i++) {
-    let pulses = pushButton(modules, [{ source: "button", level: "LOW", destination: "broadcaster" }]);
+    let pulses = pushButton(modules, [{ source: "button", level: "LOW", destination: "broadcaster" }], i, watched);
     highs += pulses.filter(it => it.level == "HIGH").length;
     lows += pulses.filter(it => it.level == "LOW").length;
   }
-  return highs * lows
+  return highs * lows;
 }
 
-function part2(n) {
-  let modules = parseInput(text);
-  modules["rx"] = new SignalModule("rx");
-  let highs = 0;
-  let lows = 0;
-  for (let i = 0; i < n; i++) {
-    let pulses = pushButton(modules, [{ source: "button", level: "LOW", destination: "broadcaster" }]);
-    highs += pulses.filter(it => it.level == "HIGH").length;
-    lows += pulses.filter(it => it.level == "LOW").length;
+console.log(part1(1000, "cq"));
+
+part1(20000, "cq");
+part1(20000, "dc");
+part1(20000, "rv");
+part1(20000, "vp");
+
+function gcd(a, b) {
+  if (b == 0) {
+    return a;
   }
-  return highs * lows
+
+  return gcd(b, a % b);
 }
 
-console.log(part1(1000));
+function lcm(a, b) {
+  return (a * b) / gcd(a, b);
+}
 
-console.log(part2(1000000));
+// I didn't actually write the code to solve this.
+// The code above logs when the cq, dc, rv, and vp switch.
+// I used that to find the periods, then just used LCM.
+// I have no idea how a generic solution to this problem would work.
+// This one only worked because there was a nice predictable
+// period for the 4 modules at the end
+console.log([3877, 3797, 4051, 3847].reduce(lcm, 1));
