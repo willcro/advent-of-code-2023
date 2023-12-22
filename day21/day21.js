@@ -50,7 +50,7 @@ console.log(run(64, start))
 // # means dark square: fully saturated
 // . means light square: fully saturated
 // + means corner square: 130 steps inside
-// @ means first right perimeter: 195 steps inside
+// @ means first ring perimeter: 195 steps inside
 // ^ means second ring perimeter: 64 steps inside
 /**
  *           +
