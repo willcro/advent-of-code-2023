@@ -62,7 +62,7 @@ console.log(run(64, start))
  *    ^@.#.#.#.#.#.@^
  *   ^@.#.#.#.#.#.#.@^
  *  ^@.#.#.#.#.#.#.#.@^
- * ^@.#.#.#.#.#.#.#.#.# 
+ * ^@.#.#.#.#.#.#.#.#.@^
  * +.#.#.#.#.%.#.#.#.#.+
  * ^@.#.#.#.#.#.#.#.#.@^
  *  ^@.#.#.#.#.#.#.#.@^
@@ -76,7 +76,7 @@ console.log(run(64, start))
  *           +
  */
 
-// "To answer that we need to talk about parallel universes." - pannenkoek2012
+// "To answer that, we need to talk about parallel universes." - pannenkoek2012
 
 let r = (26501365 - 65) / 131 - 1;
 
